@@ -23,16 +23,6 @@ class Zoek_Plugin {
         
     }
     
-    public function before_404_load_content(&$file)
-    {
-        
-    }
-    
-    public function after_404_load_content(&$file, &$content)
-    {
-        
-    }
-    
     public function config_loaded(&$settings)
     {
         
@@ -43,7 +33,7 @@ class Zoek_Plugin {
         
     }
     
-    public function file_meta(&$meta)
+    public function page_meta(&$meta)
     {
         
     }
@@ -58,7 +48,7 @@ class Zoek_Plugin {
         
     }
     
-    public function get_pages(&$pages, &$current_page, &$prev_page, &$next_page)
+    public function get_pages(&$pages, $category, &$current_page)
     {
         
     }
@@ -68,7 +58,7 @@ class Zoek_Plugin {
         
     }
     
-    public function before_render(&$twig_vars, &$twig)
+    public function before_render(&$twig_vars, &$twig, &$file)
     {
         
     }

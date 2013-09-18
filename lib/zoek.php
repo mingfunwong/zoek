@@ -26,51 +26,35 @@ class Zoek {
         // 取得域名/ 后面 URL
         if($request_url != $script_url) $url = trim(preg_replace('/'. str_replace('/', '\/', str_replace('index.php', '', $script_url)) .'/', '', $request_url, 1), '/');
         $url = preg_replace('/\?.*/', '', $url); // Strip query string
+        if (!empty($url)) { $url = '/' . $url; }
         $this->run_hooks('request_url', array(&$url));
 
-        // 取得文件路径
-        if($url) $file = CONTENT_DIR . $url;
-        else $file = CONTENT_DIR .'index';
-
-        // 载入文件
-        if(is_dir($file)) $file = CONTENT_DIR . $url .'/index'. CONTENT_EXT;
-        else $file .= CONTENT_EXT;
-
-        $this->run_hooks('before_load_content', array(&$file));
-        if(file_exists($file)){
-            $content = file_get_contents($file);
-        } else {
-            $this->run_hooks('before_404_load_content', array(&$file));
-            $content = file_get_contents(CONTENT_DIR .'404'. CONTENT_EXT);
-            header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
-            $this->run_hooks('after_404_load_content', array(&$file, &$content));
-        }
-        $this->run_hooks('after_load_content', array(&$file, &$content));
-        
         // 载入配置
         $settings = $this->get_config();
         $this->run_hooks('config_loaded', array(&$settings));
-
-        $meta = $this->read_file_meta($content);
-        $this->run_hooks('file_meta', array(&$meta));
-        $content = $this->parse_content($content);
-        $this->run_hooks('content_parsed', array(&$content));
         
         // 取得所有页
         $pages = $this->get_pages($settings['base_url'], $settings['pages_order_by'], $settings['pages_order'], $settings['excerpt_length']);
+        $category = $pages['category'];
+        $pages    = $pages['pages'];
         $prev_page = array();
         $current_page = array();
         $next_page = array();
         while($current_page = current($pages)){
-            if((isset($meta['title'])) && ($meta['title'] == $current_page['title'])){
+            if ($settings['base_url'] . $url == $current_page['meta']['url']) {
                 break;
             }
             next($pages);
         }
-        $prev_page = next($pages);
-        prev($pages);
-        $next_page = prev($pages);
-        $this->run_hooks('get_pages', array(&$pages, &$current_page, &$prev_page, &$next_page));
+        $this->run_hooks('get_pages', array(&$pages, $category, &$current_page));
+        $content = $current_page['content'];
+        $meta = $current_page['meta'];
+        $file = $current_page['file'];
+        
+        if (empty($current_page))
+        {
+            $this->show_404($content, $meta, $file);
+        }
 
         // 载入主题
         $this->run_hooks('before_twig_register');
@@ -88,17 +72,108 @@ class Zoek {
             'meta' => $meta,
             'content' => $content,
             'pages' => $pages,
-            'prev_page' => $prev_page,
+            'category' => $category,
             'current_page' => $current_page,
-            'next_page' => $next_page,
             'is_front_page' => $url ? false : true,
         );
-        $this->run_hooks('before_render', array(&$twig_vars, &$twig));
+        $this->run_hooks('before_render', array(&$twig_vars, &$twig, &$file));
+        $twig_vars['content'] = $this->twig_content($file, $twig_vars);
         $output = $twig->render('index.html', $twig_vars);
         $this->run_hooks('after_render', array(&$output));
         echo $output;
     }
     
+    /**
+     * 展示 404 页面
+     * 
+     * @access public
+     * @param mixed $content
+     * @return void
+     */
+    public function show_404(&$content, &$meta, &$file)
+    {
+        header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
+        $file = '404'. CONTENT_EXT;
+        $content = $this->twig_content($file, array());
+    }
+
+    /**
+     * Markdown 转 HTML
+     * 
+     * @access private
+     * @param mixed $content
+     * @return string
+     */
+    public function parse_content($content)
+    {
+        $content = preg_replace('#/\*.+?\*/#s', '', $content);
+        $content = str_replace('%base_url%', $this->base_url(), $content);
+        
+        $content = MarkdownExtra::defaultTransform($content);
+
+        return $content;
+    }
+    /**
+     * twig 转 HTML
+     * 
+     * @access private
+     * @param mixed $content
+     * @return string
+     */
+    public function twig_content($file, $vars)
+    {
+        $loader = new Twig_Loader_Filesystem(CONTENT_DIR);
+        $zoek = new Twig_Environment($loader, $vars);
+        $output = $zoek->render($file, $vars);
+        $content = $this->parse_content($output);
+        return $content;
+    }
+    
+    /**
+     * 取得 meta 头
+     * 
+     * @access private
+     * @param mixed $content
+     * @return array
+     */
+    public function read_file_meta($file, $base_url, $url)
+    {
+        global $config;
+        
+        $content = file_get_contents($file);
+        
+        $headers = array(
+            'title'      => 'Title',
+            'category'   => 'Category',
+            'naviname'   => 'Naviname',
+            'url'        => 'Url',
+            'description' => 'Description',
+            'author'     => 'Author',
+            'date'       => 'Date',
+            'robots'     => 'Robots',
+            'order'      => 'Order'
+        );
+
+        $this->run_hooks('before_read_file_meta', array(&$headers));
+
+        foreach ($headers as $field => $regex){
+            if (preg_match('/^[ \t\/*#@]*' . preg_quote($regex, '/') . ':(.*)$/mi', $content, $match) && $match[1]){
+                $headers[ $field ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
+            } else {
+                $headers[ $field ] = '';
+            }
+        }
+        
+        if(isset($headers['date'])) $headers['date_formatted'] = date($config['date_format'], strtotime($headers['date']));
+        if (empty($headers['url'])) {
+            $headers['url'] = $base_url;
+        }
+        else {
+            $headers['url'] = $base_url . '/' . $headers['url'];
+        }
+        return $headers;
+    }
+
     /**
      * 载入插件
      * 
@@ -120,58 +195,7 @@ class Zoek {
             }
         }
     }
-
-    /**
-     * Markdown 转 HTML
-     * 
-     * @access private
-     * @param mixed $content
-     * @return string
-     */
-    private function parse_content($content)
-    {
-        $content = preg_replace('#/\*.+?\*/#s', '', $content); // Remove comments and meta
-        $content = str_replace('%base_url%', $this->base_url(), $content);
-        $content = MarkdownExtra::defaultTransform($content);
-
-        return $content;
-    }
-
-    /**
-     * 取得 meta 头
-     * 
-     * @access private
-     * @param mixed $content
-     * @return array
-     */
-    private function read_file_meta($content)
-    {
-        global $config;
-        
-        $headers = array(
-            'title'       	=> 'Title',
-            'description' 	=> 'Description',
-            'author' 		=> 'Author',
-            'date' 			=> 'Date',
-            'robots'     	=> 'Robots'
-        );
-
-        // Add support for custom headers by hooking into the headers array
-        $this->run_hooks('before_read_file_meta', array(&$headers));
-
-        foreach ($headers as $field => $regex){
-            if (preg_match('/^[ \t\/*#@]*' . preg_quote($regex, '/') . ':(.*)$/mi', $content, $match) && $match[1]){
-                $headers[ $field ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
-            } else {
-                $headers[ $field ] = '';
-            }
-        }
-        
-        if(isset($headers['date'])) $headers['date_formatted'] = date($config['date_format'], strtotime($headers['date']));
-
-        return $headers;
-    }
-
+    
     /**
      * 取得配置
      * 
@@ -215,38 +239,32 @@ class Zoek {
         global $config;
         
         $pages = $this->get_files(CONTENT_DIR, CONTENT_EXT);
-        $sorted_pages = array();
+        $sorted_pages = $category = array();
         $date_id = 0;
         foreach($pages as $key=>$page){
-            // Skip 404
             if(basename($page) == '404'. CONTENT_EXT){
                 unset($pages[$key]);
                 continue;
             }
-
-            // Ignore Emacs (and Nano) temp files
             if (in_array(substr($page, -1), array('~','#'))) {
                 unset($pages[$key]);
                 continue;
-            }			
-            // Get title and format $page
-            $page_content = file_get_contents($page);
-            $page_meta = $this->read_file_meta($page_content);
-            $page_content = $this->parse_content($page_content);
+            }
             $url = str_replace(CONTENT_DIR, $base_url .'/', $page);
             $url = str_replace('index'. CONTENT_EXT, '', $url);
             $url = str_replace(CONTENT_EXT, '', $url);
-            $data = array(
-                'title' => isset($page_meta['title']) ? $page_meta['title'] : '',
-                'url' => $url,
-                'author' => isset($page_meta['author']) ? $page_meta['author'] : '',
-                'date' => isset($page_meta['date']) ? $page_meta['date'] : '',
-                'date_formatted' => isset($page_meta['date']) ? date($config['date_format'], strtotime($page_meta['date'])) : '',
-                'content' => $page_content,
-                'excerpt' => $this->limit_words(strip_tags($page_content), $excerpt_length)
-            );
-
-            // Extend the data provided with each page by hooking into the data array
+            $page_meta = $this->read_file_meta($page, $base_url, $url);
+            $this->run_hooks('page_meta', array(&$page_meta));
+            
+            $this->run_hooks('before_load_content', array(&$page));
+            $content = file_get_contents($page);
+            $this->run_hooks('after_load_content', array(&$page, &$content));
+            $page_content = $this->parse_content($page);
+            $this->run_hooks('content_parsed', array(&$page_content));
+            $data['file'] = str_replace(CONTENT_DIR, '', $page);
+            $data['meta'] = $page_meta;
+            $data['content'] = $page_content;
+            $data['excerpt'] = $this->limit_words(strip_tags($page_content), $excerpt_length);
             $this->run_hooks('get_page_data', array(&$data, $page_meta));
 
             if($order_by == 'date' && isset($page_meta['date'])){
@@ -259,7 +277,32 @@ class Zoek {
         if($order == 'desc') krsort($sorted_pages);
         else ksort($sorted_pages);
         
-        return $sorted_pages;
+        $categorys = $sorted_pages;
+        foreach ($categorys as $value) {
+            if (isset($value['meta']['category'])) {
+                $category[$value['meta']['category']][] = $value;
+            }
+        }
+        $return = array('pages' => $sorted_pages, 'category' => $category);
+        return $return;
+    }
+    
+    /**
+     * 二维数组排序
+     * 
+     * @access private
+     * @param mixed $arr
+     * @param mixed $field
+     * @param mixed $by
+     * @return array
+     */
+    public function array_sort($arr, $field, $by = SORT_ASC)
+    {
+        foreach ($arr as $v) {
+            $r[] = $v[$field];
+        }
+        array_multisort($r, $by, $arr);
+        return $arr;
     }
     
     /**
@@ -353,5 +396,6 @@ class Zoek {
         $words = explode(' ',$string);
         return trim(implode(' ', array_splice($words, 0, $word_limit))) .'...';
     }
+
 
 }
