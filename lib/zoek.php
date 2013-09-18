@@ -4,7 +4,7 @@ use \Michelf\MarkdownExtra;
 /**
  * Zoek - 简洁优雅的 CMS 系统
  * 
- * @link http://mingfunwong.com/zoek/
+ * @link http://zoek.mingfunwong.com/
  * @license http://opensource.org/licenses/MIT
  * @author Mingfun Wong <mingfunw@gmail.com>
  */
@@ -259,7 +259,8 @@ class Zoek {
             $this->run_hooks('before_load_content', array(&$page));
             $content = file_get_contents($page);
             $this->run_hooks('after_load_content', array(&$page, &$content));
-            $page_content = $this->parse_content($page);
+            $page_content = $this->twig_content(str_replace(CONTENT_DIR, '', $page), array());
+            //$page_content = $this->parse_content($page);
             $this->run_hooks('content_parsed', array(&$page_content));
             $data['file'] = str_replace(CONTENT_DIR, '', $page);
             $data['meta'] = $page_meta;

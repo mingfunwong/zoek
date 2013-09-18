@@ -1,8 +1,8 @@
 <?php
 /**
- * Zoek - 简洁优雅的 CMS 系统
+ * Zoek - 简洁优雅的 Blog 系统
  * 
- * @link http://mingfunwong.com/zoek/
+ * @link http://zoek.mingfunwong.com/
  * @license http://opensource.org/licenses/MIT
  * @author Mingfun Wong <mingfunw@gmail.com>
  */
