@@ -77,7 +77,7 @@ class Zoek {
             'is_front_page' => $url ? false : true,
         );
         $this->run_hooks('before_render', array(&$twig_vars, &$twig, &$file));
-        $twig_vars['content'] = $this->twig_content($file, $twig_vars);
+        //$twig_vars['content'] = $this->twig_content($file, $twig_vars);
         $output = $twig->render('index.html', $twig_vars);
         $this->run_hooks('after_render', array(&$output));
         echo $output;
@@ -93,8 +93,11 @@ class Zoek {
     public function show_404(&$content, &$meta, &$file)
     {
         header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
-        $file = '404'. CONTENT_EXT;
-        $content = $this->twig_content($file, array());
+        $file = CONTENT_DIR . '404'. CONTENT_EXT;
+        $content = file_get_contents($file);
+        $meta = $this->read_file_meta($file, '', '');
+        $content = $this->parse_content(file_get_contents($file));
+        //$content = $this->twig_content($file, array());
     }
 
     /**
@@ -259,8 +262,8 @@ class Zoek {
             $this->run_hooks('before_load_content', array(&$page));
             $content = file_get_contents($page);
             $this->run_hooks('after_load_content', array(&$page, &$content));
-            $page_content = $this->twig_content(str_replace(CONTENT_DIR, '', $page), array());
-            //$page_content = $this->parse_content($page);
+            //$page_content = $this->twig_content(str_replace(CONTENT_DIR, '', $page), array());
+            $page_content = $this->parse_content($content);
             $this->run_hooks('content_parsed', array(&$page_content));
             $data['file'] = str_replace(CONTENT_DIR, '', $page);
             $data['meta'] = $page_meta;
