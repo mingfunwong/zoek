@@ -239,10 +239,10 @@ class Zoek {
     {
         global $config;
         
-        if (($pages = $this->cache('pages')) === false) {
+        //if (($pages = $this->cache('pages')) === false) {
             $pages = $this->get_files(CONTENT_DIR, CONTENT_EXT);
-            $this->cache('pages', $pages);
-        }
+        //    $this->cache('pages', $pages);
+        //}
         
         $sorted_pages = $category = array();
         $date_id = 0;
