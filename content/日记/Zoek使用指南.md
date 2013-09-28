@@ -40,4 +40,4 @@ Zoek 是一个开源系统，使用 MIT 授权协议，意味着允许用于个�
 - Apache mod_rewrite模块（用于支持固定链接功能）
 
 ## 帮助文档
-- [Zoek 帮助文档](http://zoek.mingfunwong.com/doc)
+- [Zoek 帮助文档](http://zoek.mingfunwong.com/blog/doc)
