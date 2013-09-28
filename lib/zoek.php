@@ -2,7 +2,7 @@
 use \Michelf\MarkdownExtra;
 
 /**
- * Zoek - ¼ò½àÓÅÑÅµÄ CMS ÏµÍ³
+ * Zoek - ç®€æ´ä¼˜é›…çš„ CMS ç³»ç»Ÿ
  * 
  * @link http://zoek.mingfunwong.com/
  * @license http://opensource.org/licenses/MIT
@@ -14,26 +14,26 @@ class Zoek {
 
     public function __construct()
     {
-        // ÔØÈë²å¼ş
+        // è½½å…¥æ’ä»¶
         $this->load_plugins();
         $this->run_hooks('plugins_loaded');
         
-        // È¡µÃ Request URL ºÍ Script URL
+        // å–å¾— Request URL å’Œ Script URL
         $url = '';
         $request_url = (isset($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : '';
         $script_url  = (isset($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : '';
 
-        // È¡µÃÓòÃû/ ºóÃæ URL
+        // å–å¾—åŸŸå/ åé¢ URL
         if($request_url != $script_url) $url = trim(preg_replace('/'. str_replace('/', '\/', str_replace('index.php', '', $script_url)) .'/', '', $request_url, 1), '/');
         $url = preg_replace('/\?.*/', '', $url); // Strip query string
         if (!empty($url)) { $url = '/' . $url; }
         $this->run_hooks('request_url', array(&$url));
 
-        // ÔØÈëÅäÖÃ
+        // è½½å…¥é…ç½®
         $settings = $this->get_config();
         $this->run_hooks('config_loaded', array(&$settings));
         
-        // È¡µÃËùÓĞÒ³
+        // å–å¾—æ‰€æœ‰é¡µ
         $pages = $this->get_pages($settings['base_url'], $settings['pages_order_by'], $settings['pages_order'], $settings['excerpt_length']);
         $category = $pages['category'];
         $pages    = $pages['pages'];
@@ -56,7 +56,7 @@ class Zoek {
             $this->show_404($content, $meta, $file);
         }
 
-        // ÔØÈëÖ÷Ìâ
+        // è½½å…¥ä¸»é¢˜
         $this->run_hooks('before_twig_register');
         Twig_Autoloader::register();
         $loader = new Twig_Loader_Filesystem(THEMES_DIR . $settings['theme']);
@@ -77,14 +77,13 @@ class Zoek {
             'is_front_page' => $url ? false : true,
         );
         $this->run_hooks('before_render', array(&$twig_vars, &$twig, &$file));
-        //$twig_vars['content'] = $this->twig_content($file, $twig_vars);
         $output = $twig->render('index.html', $twig_vars);
         $this->run_hooks('after_render', array(&$output));
         echo $output;
     }
     
     /**
-     * Õ¹Ê¾ 404 Ò³Ãæ
+     * å±•ç¤º 404 é¡µé¢
      * 
      * @access public
      * @param mixed $content
@@ -97,11 +96,10 @@ class Zoek {
         $content = file_get_contents($file);
         $meta = $this->read_file_meta($file, '', '');
         $content = $this->parse_content(file_get_contents($file));
-        //$content = $this->twig_content($file, array());
     }
 
     /**
-     * Markdown ×ª HTML
+     * Markdown è½¬ HTML
      * 
      * @access private
      * @param mixed $content
@@ -117,7 +115,7 @@ class Zoek {
         return $content;
     }
     /**
-     * twig ×ª HTML
+     * ç¼–è¯‘ twig
      * 
      * @access private
      * @param mixed $content
@@ -133,7 +131,7 @@ class Zoek {
     }
     
     /**
-     * È¡µÃ meta Í·
+     * å–å¾— meta å¤´
      * 
      * @access private
      * @param mixed $content
@@ -178,7 +176,7 @@ class Zoek {
     }
 
     /**
-     * ÔØÈë²å¼ş
+     * è½½å…¥æ’ä»¶
      * 
      * @access private
      * @return void
@@ -200,7 +198,7 @@ class Zoek {
     }
     
     /**
-     * È¡µÃÅäÖÃ
+     * å–å¾—é…ç½®
      * 
      * @access private
      * @return array
@@ -228,7 +226,7 @@ class Zoek {
     }
     
     /**
-     * È¡µÃËùÓĞÒ³Ãæ
+     * å–å¾—æ‰€æœ‰é¡µé¢
      * 
      * @access private
      * @param mixed $base_url
@@ -241,7 +239,11 @@ class Zoek {
     {
         global $config;
         
-        $pages = $this->get_files(CONTENT_DIR, CONTENT_EXT);
+        if (($pages = $this->cache('pages')) === false) {
+            $pages = $this->get_files(CONTENT_DIR, CONTENT_EXT);
+            $this->cache('pages', $pages);
+        }
+        
         $sorted_pages = $category = array();
         $date_id = 0;
         foreach($pages as $key=>$page){
@@ -262,7 +264,6 @@ class Zoek {
             $this->run_hooks('before_load_content', array(&$page));
             $content = file_get_contents($page);
             $this->run_hooks('after_load_content', array(&$page, &$content));
-            //$page_content = $this->twig_content(str_replace(CONTENT_DIR, '', $page), array());
             $page_content = $this->parse_content($content);
             $this->run_hooks('content_parsed', array(&$page_content));
             $data['file'] = str_replace(CONTENT_DIR, '', $page);
@@ -292,7 +293,7 @@ class Zoek {
     }
     
     /**
-     * ¶şÎ¬Êı×éÅÅĞò
+     * äºŒç»´æ•°ç»„æ’åº
      * 
      * @access private
      * @param mixed $arr
@@ -310,7 +311,7 @@ class Zoek {
     }
     
     /**
-     * Ö´ĞĞ Hooks
+     * æ‰§è¡Œ Hooks
      * 
      * @access private
      * @param mixed $hook_id
@@ -329,7 +330,7 @@ class Zoek {
     }
 
     /**
-     * È¡µÃ»ù±¾ URL
+     * å–å¾—åŸºæœ¬ URL
      * 
      * @access private
      * @return string
@@ -349,7 +350,7 @@ class Zoek {
     }
 
     /**
-     * È¡µÃ·şÎñÒ³Ãæ
+     * å–å¾—æœåŠ¡é¡µé¢
      * 
      * @access private
      * @return string
@@ -361,7 +362,7 @@ class Zoek {
     }
          
     /**
-     * È¡µÃËùÓĞÎÄ¼ş
+     * å–å¾—æ‰€æœ‰æ–‡ä»¶
      * 
      * @access private
      * @param mixed $directory
@@ -388,7 +389,7 @@ class Zoek {
     }
     
     /**
-     * ½ØÈ¡×Ö·û´®
+     * æˆªå–å­—ç¬¦ä¸²
      * 
      * @access private
      * @param mixed $string
@@ -401,5 +402,16 @@ class Zoek {
         return trim(implode(' ', array_splice($words, 0, $word_limit))) .'...';
     }
 
-
+    public function cache($key, $value = null)
+    {
+        $file = CACHE_DIR . preg_replace('/[^A-Z0-9\._-]/i', '', $key) . '.cache';
+        if ($value == null)
+        {
+            if ( ! file_exists($file)) return false;
+            return unserialize(file_get_contents($file));
+        } else {
+            return file_put_contents($file, serialize($value));
+        }
+    }
+    
 }
