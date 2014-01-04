@@ -1,0 +1,65 @@
+body {
+	background-color: #f2f2f2;
+}
+hr {
+	border-top: 1px solid #E9E9E9;
+}
+pre {
+	background-color: inherit;
+	border: none;
+}
+.container {
+	width: 65%;
+}
+#header {
+	padding: 20px 0;
+}
+#header .title{
+	font-size: 24px;
+	color: #333;
+}
+#main .breadcrumb {
+	padding: 0;
+	background-color: #f2f2f2;
+}
+#footer {
+	padding: 20px 0;
+}
+#footer .link a {
+	margin-right: 40px;
+}
+
+#list {
+	
+}
+#list #main {
+	padding: 40px 0;
+}
+#list #main .item {
+	padding-bottom: 40px;
+}
+#list #main .item .date {
+	color: #adadad;
+}
+#list #main .item h2 {
+	color: #333;
+	font-weight: bold;
+}
+
+#page {
+	
+}
+#page #main {
+	padding: 40px 0;
+}
+#page #main .date {
+	color: #adadad;
+}
+#page #main h1 {
+	color: #333;
+	font-weight: bold;
+}
+#page #main .contents {
+	padding: 40px 0;
+	font-size: 16px;
+}

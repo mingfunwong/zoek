@@ -1,7 +1,7 @@
 # Zoek
 
 ## 欢迎使用 Zoek
-简洁、优雅、易用的微型 Blog 系统，让 Blog 写作更方便、简单。
+Zoek 是一个优雅易用的博客系统，Markdown 方式写作，让你专注于文字而不是排版。
 
 Zoek 是一个开源系统，使用 MIT 授权协议，意味着允许用于个人、公司或商业目的。
 
@@ -9,19 +9,15 @@ Zoek 是一个开源系统，使用 MIT 授权协议，意味着允许用于个�
 - 直接下载： [https://github.com/mingfunwong/zoek/archive/master.zip](https://github.com/mingfunwong/zoek/archive/master.zip)
 - 通过 Git 命令： `git clone git://github.com/mingfunwong/zoek.git`
 
-## Zoek 有什么优势？
+## Zoek 有什么优点？
 
-- 简单、优雅、易用的微型 Blog 系统
+- 基于极简主义设计的、优雅易用的博客系统
 
-- 基于 Markdown 存储文件
+- 基于 Markdown 格式存储文件
 
 - 具有良好的、结构性的、简约的代码，使用 PHP 5.3 新特征
 
-- 整个程序是 620 KB
-
-- Zoek 结构良好，支持扩展
-
-- Zoek 是 Pico 的分支版本
+- 小巧，易于二次开发，整个程序大小约 550 KB
 
 ## 服务器环境要求
 - PHP 5.3.0 或更新版本
@@ -29,22 +25,19 @@ Zoek 是一个开源系统，使用 MIT 授权协议，意味着允许用于个�
 
 ## 如何创建内容？
 
-Zoek 是一个基于文件的 Blog 系统，这意味着没有管理后台和数据库处理。
+Zoek 是一个基于文件的博客系统，这意味着没有管理后台和数据库处理。
 
-您只需创建 `.md` 文件，然后在文件前添加 Url 地址。例如添加了 `Url: about` 只后便可以通过 http://example.com/about 进行访问。
+您只需在 `/log` 目录创建 `.md` 文件，然后在文件前添加 Url 地址。例如添加了 `Url: about` 只后便可以通过 http://example.com/about 进行访问。
 
 下面显示内容的位置和它们的相应的URL的一些例子：
 
 <dl class="dl-horizontal">
-  <dt>Url: </dt>
-	<dd>http://example.com</dd>
+  <dt>Url: first</dt>
+	<dd>http://example.com/first</dd>
   <dt>Url: about</dt>
 	<dd>http://example.com/about</dd>
-  <dt>Url: zoek/doc</dt>
-	<dd>http://example.com/zoek/doc</dd>
 </dl>
 
-提示：404 页面是位于 `content/404.md`。
 
 ## 使用优雅的 Markdown 方式写作
 
@@ -94,108 +87,62 @@ Markdown 是一种轻量级标记语言，它允许人们使用易读易写的�
 
 ## 使用注释块
 
-在 Markdown 的文本文件顶部，请放置一个注释块，并在页面中指定某些属性。例如：
+在 Markdown 的文本文件顶部，请放置一个注释块。例如：
 
 	/*
 
-	Title: Zoek - 简洁优雅的 Blog 系统
+	Title: Zoek - 优雅易用的博客系统
 	
-	Description: 这个是一个 Description 标签
-	
-	Url: index
-	
-	Author: Zoek
-	
-	Naviname: Home
-	
-	Date: 2013-01-10
-	
-	Category: page
-	
-	Robots: noindex,nofollow
+	Url: usezoek
 
+	Date: 2014-01-10
 	*/
 
 
-## 主题
+## 设置
 
-你可以创建你 Zoek 安装主题在主题文件夹。 Zoek 使用
-[Twig](http://twig.sensiolabs.org/documentation) 作为模版引擎。 您可以通过 `config.php ` 的 `$config['theme']` 选择您的主题。
+初次使用 Zoek 时请重设配置文件。
 
-所有的主题都必须包含一个 `index.html` 文件定义主题的 HTML 结构。以下是可以使用在你的主题使用的变量：
+一、站点设置
 
-* `{{ config }}`
-* `{{ base_dir }}`
-* `{{ base_url }}`
-* `{{ theme_dir }}`
-* `{{ theme_url }}`
-* `{{ site_title }}`
-* `{{ meta }}`
-	* `{{ meta.title }}`
-	* `{{ meta.category }}`
-	* `{{ meta.naviname }}`
-	* `{{ meta.url }}`
-	* `{{ meta.description }}`
-	* `{{ meta.author }}`
-	* `{{ meta.date }}`
-	* `{{ meta.date_formatted }}`
-	* `{{ meta.robots }}`
-	* `{{ meta.order }}`
-* `{{ content }}`
-* `{{ pages }}`
-	* `{{ pages.file }}` 
-	* `{{ pages.meta }}` 
-	* `{{ pages.content }}` 
-	* `{{ pages.excerpt }}` 
-* `{{ category }}`
-* `{{ current_page }}`
-* `{{ is_front_page }}` 
+打开 `config.ini` 配置文件进行相关设置，默认设置如下。
 
-可以使用以下方式输出全部文章：
-
-<pre>&lt;ul class=&quot;nav&quot;&gt;
-	{% for page in pages %}
-	&lt;li&gt;&lt;a href=&quot;{{ page.meta.url }}&quot;&gt;{{ page.meta.title }}&lt;/a&gt;&lt;/li&gt;
-	{% endfor %}
-&lt;/ul&gt;</pre>
-
-### 设置
-
-请浏览 `config.php` 取得所有设置
-
-	// 站点标题
-	$config['site_title'] = 'Zoek';
+	[globals]
+	; 系统配置
+	; 0 部署环境 3 开发环境
+	DEBUG=0
+	; 模版目录
+	UI=theme/
+	; 自动转义
+	ESCAPE=false
 	
-	// 站点描述
-	$config['site_description'] = '简约优雅的 Blog 系统';
-	
-	// 站点地址 (例如：http://example.com )
-	$config['base_url'] = 'http://zoek.com'; 
-	
-	// 使用主题
-	$config['theme'] = 'blog';
-	
-	// 日期格式
-	$config['date_format'] = 'M d, Y \a\t g:i a';
-	
-	// 下面是配置在插件中使用
-	$config['pages_length'] = 1;
-	
-	// 以下是 Twig 模板配置
-	// $config['twig_config'] = array(
-	//     'cache' => CACHE_DIR
-	// );
-	
-	// 页面排序依据 (请选择 alpha 或 date )
-	$config['pages_order_by'] = 'date';
-	
-	// 页面排序方式 (请选择 asc 或 desc )
-	$config['pages_order'] = 'desc';
-	
-	// 页面摘要长度 (默认：50 )
-	$config['excerpt_length'] = 50;
+	; 应用配置
+	; 网站标题
+	site_name=Zoek 站点
+	; 底部链接
+	footer_link[0][name]=Zoek 驱动
+	footer_link[0][link]=https://github.com/mingfunwong/zoek
 
-### 帮助链接
+二、留言板设置
 
-- [Zoek 官方网站](http://zoek.mingfunwong.com/)
-- [Zoek 帮助文档](http://zoek.mingfunwong.com/doc)
+打开 `theme/page.htm` 找到：
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'mingfunwong'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+
+请替换成您的留言板代码。建议使用 [Disqus](http://disqus.com/) 、 [多说](http://duoshuo.com/) 。
+
+## 相关链接
+
+- [Zoek 官方网站](http://mingfunwong.com/zoek)
+- [Zoek 开源项目](https://github.com/mingfunwong/zoek)
