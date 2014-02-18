@@ -20,35 +20,20 @@ $base->set('theme', $base->get('base').$base->get('UI'));
 
 // 欢迎页面
 
-// 列表页面
-$base->route('GET /',
-    function($base) {
-        $base->mset(
-            array(
-                'id'=>'list',
-                'title'=>$base->get('site_name'),
-                'pages'=>Zoek::pages(),
-                'content'=>'list.htm'
-            )
-        );
-        echo View::instance()->render('layout.htm');
-    }
-);
-
-// 文章页面
-$base->route('GET /@log',
+// 列表页面和文章页面
+$base->route(array('GET /', 'GET /@log'),
     function($base, $get) {
-        if ($page = Zoek::log($get['log']))
+        if ($page = Zoek::log(from($get, 'log', 'index')))
         {
             $base->mset(
                 array(
-                    'id'=>'page',
                     'title'=>$page['Title'],
                     'page'=>$page,
-                    'content'=>'page.htm'
+                    'content'=>'page.htm',
+                    'pages'=>Zoek::pages('log/*.md', false)
                 )
             );
-            echo View::instance()->render('layout.htm');
+            exit(View::instance()->render('layout.htm'));
         } else {
             Zoek::show_404();
         }
@@ -80,13 +65,14 @@ class Zoek {
     /**
      * 取得所有页面
      */
-    static function pages($pattern = 'log/*.md')
+    static function pages($pattern = 'log/*.md', $need_index = true)
     {
         $pages = array();
         $files =  Zoek::_files($pattern);
         foreach($files as $file) {
             $info = Zoek::_info($file);
             if (!$info['Url']) continue;
+            if ($need_index == false && $info['Url'] == 'index') continue;
             $pages[$info['Url']] = $info;
         }
         $pages = Zoek::_array_sort($pages, 'Date', SORT_DESC);
@@ -137,7 +123,6 @@ class Zoek {
      */
     static function _Markdown($contents)
     {
-        // return Markdown::instance()->convert($contents);
         return \Michelf\MarkdownExtra::defaultTransform($contents);
     }
     
@@ -165,5 +150,19 @@ class Zoek {
         array_multisort($r, $by, $arr);
         return $arr;
     }
+}
 
+/**
+* 获得数组指定键的值
+*
+* @access global
+* @param array $array
+* @param string $key
+* @param mixed $default
+* @param bool $check_empty
+* @return mixed
+*/
+function from($array, $key, $default = FALSE, $check_empty = FALSE)
+{
+    return (isset($array[$key]) === FALSE OR ($check_empty === TRUE && empty($array[$key])) === TRUE) ? $default : $array[$key];
 }

@@ -7,28 +7,31 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title><?php echo $title; ?></title>
     <link href="<?php echo $theme; ?>css/bootstrap.min.css" rel="stylesheet">
-    <link href="<?php echo $theme; ?>css/main.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $theme; ?>css/main.css" rel="stylesheet">
   </head>
-  <body id="<?php echo $id; ?>">
-    <div id="header">
+  <body>
         <div class="container">
-            <a href="<?php echo $base; ?>" class="title"><?php echo $site_name; ?></a>
-        </div>
-    </div>
-    <div id="main">
-<?php echo $this->render($content); ?>
-
-    </div>
-        <div id="footer">
-            <div class="container">
-                <div class="link">
-                    <?php foreach($footer_link as $link): ?>
-                    <a href="<?php echo $link['link']; ?>"><?php echo $link['name']; ?></a>
-                    <?php endforeach; ?>
+            <div class="side col-sm-4 col-md-3">
+                <div class="side-nav">
+                        <p class="logo text-center">
+                            <a href="<?php echo $base; ?>"><img src="<?php echo $base; ?>logo.png" width="150px"></a>
+                        </p>
+                    <ul>
+                        <li><a href="<?php echo $base; ?>"<?php if ('index' == $page['Url']): ?> class="on"<?php endif; ?>>主页</a></li>
+                        <li><hr></li>
+                        <?php foreach($pages as $item): ?>
+                        <li><a href="<?php echo $base . $item['Url']; ?>"<?php if ($item['Url'] == $page['Url']): ?> class="on"<?php endif; ?>><?php echo $item['Title']; ?></a></li>
+                        <?php endforeach; ?>
+                        <li><hr></li>
+                        <?php foreach($footer_link as $link): ?>
+                        <li><a href="<?php echo $link['link']; ?>"><?php echo $link['name']; ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
+            </div>
+            <div class="main col-sm-8 col-md-9">
+                <?php echo $page['contents']; ?>
             </div>
         </div>
     </body>
-    <link href="<?php echo $theme; ?>css/shCoreDefault.edit.css" rel="stylesheet" type="text/css" />
-    <script src="<?php echo $theme; ?>js/sh.all.js" type="text/javascript"></script>
 </html>
