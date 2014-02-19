@@ -17,9 +17,9 @@
                             <a href="<?php echo $base; ?>"><img src="<?php echo $base; ?>logo.png" width="150px"></a>
                         </p>
                     <ul>
-                        <li><a href="<?php echo $base; ?>"<?php if ('index' == $page['Url']): ?> class="on"<?php endif; ?>>主页</a></li>
+                        <li><a href="<?php echo $base; ?>"<?php if ('index' == $page['Url']): ?> class="on"<?php endif; ?>><?php echo $pages['index']['Title'] ?></a></li>
                         <li><hr></li>
-                        <?php foreach($pages as $item): ?>
+                        <?php foreach($pages as $item): if($item['Url'] == 'index')continue; ?>
                         <li><a href="<?php echo $base . $item['Url']; ?>"<?php if ($item['Url'] == $page['Url']): ?> class="on"<?php endif; ?>><?php echo $item['Title']; ?></a></li>
                         <?php endforeach; ?>
                         <li><hr></li>
