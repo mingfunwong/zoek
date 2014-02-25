@@ -3,11 +3,9 @@
 }
 .container {
 	max-width: 1000px;
-	margin-top: 20px;
-	margin-bottom: 40px;
 	padding-top: 20px;
 	padding-bottom: 20px;
 }
 .logo {
-	padding-bottom: 20px;
+	padding-bottom: 10px;
 }
