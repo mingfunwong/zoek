@@ -83,5 +83,4 @@ Markdown 是一种轻量级标记语言，它允许人们使用易读易写的�
 
 ## 相关链接
 
-- [Zoek 官方网站](http://mingfunwong.com/zoek)
 - [Zoek 开源项目](https://github.com/mingfunwong/zoek)
