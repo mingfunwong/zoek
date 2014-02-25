@@ -1,18 +1,13 @@
-a.on {
-	color: #2a6496;
+.active {
+	background-color: #E7E7E7;
 }
 .container {
 	max-width: 1000px;
 	margin-top: 20px;
 	margin-bottom: 40px;
-	padding: 20px 10px;
-	background-color: #FFF;
+	padding-top: 20px;
+	padding-bottom: 20px;
 }
 .logo {
 	padding-bottom: 20px;
-}
-.side-nav ul {
-	padding-left: 0;
-	list-style: none;
-	line-height: 30px;
 }

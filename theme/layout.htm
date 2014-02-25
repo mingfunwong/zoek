@@ -12,15 +12,15 @@
   <body>
         <div class="container">
             <div class="side col-sm-4 col-md-3">
-                <div class="side-nav">
+                <div class="navbar">
                         <p class="logo text-center">
                             <a href="<?php echo $base; ?>"><img src="<?php echo $base; ?>logo.png" width="150px"></a>
                         </p>
-                    <ul>
-                        <li><a href="<?php echo $base; ?>"<?php if ('index' == $page['Url']): ?> class="on"<?php endif; ?>><?php echo $pages['index']['Title'] ?></a></li>
+                    <ul class="nav">
+                        <li<?php if ('index' == $page['Url']): ?> class="active"<?php endif; ?>><a href="<?php echo $base; ?>"><?php echo $pages['index']['Title'] ?></a></li>
                         <li><hr></li>
                         <?php foreach($pages as $item): if($item['Url'] == 'index')continue; ?>
-                        <li><a href="<?php echo $base . $item['Url']; ?>"<?php if ($item['Url'] == $page['Url']): ?> class="on"<?php endif; ?>><?php echo $item['Title']; ?></a></li>
+                        <li<?php if ($item['Url'] == $page['Url']): ?> class="active"<?php endif; ?>><a href="<?php echo $base . $item['Url']; ?>"><?php echo $item['Title']; ?></a></li>
                         <?php endforeach; ?>
                         <li><hr></li>
                         <?php foreach($footer_link as $link): ?>
