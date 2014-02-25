@@ -1,4 +1,4 @@
-.active {
+.nav > .active > a {
 	background-color: #E7E7E7;
 }
 .container {
